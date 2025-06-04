@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,19 +36,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -97,5 +91,24 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   }
+}
+
+/* Custom gradient backgrounds using our color palette */
+.gradient-yellow-blue {
+  background: linear-gradient(135deg, #F4D03F 0%, #87CEEB 100%);
+}
+
+.gradient-blue-navy {
+  background: linear-gradient(135deg, #87CEEB 0%, #1B365D 100%);
+}
+
+.gradient-navy-yellow {
+  background: linear-gradient(135deg, #1B365D 0%, #F4D03F 100%);
+}
+
+/* Smooth transitions for interactive elements */
+.transition-all-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
