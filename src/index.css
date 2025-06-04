@@ -92,10 +92,15 @@
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 }
 
-/* Custom gradient backgrounds using our color palette */
+/* Enhanced custom gradient backgrounds */
 .gradient-yellow-blue {
   background: linear-gradient(135deg, #F4D03F 0%, #87CEEB 100%);
 }
@@ -108,7 +113,127 @@
   background: linear-gradient(135deg, #1B365D 0%, #F4D03F 100%);
 }
 
-/* Smooth transitions for interactive elements */
+/* Enhanced smooth transitions */
 .transition-all-smooth {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced shadow utilities */
+.shadow-3xl {
+  box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Custom animations */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-gradient {
+  animation: gradient 6s ease infinite;
+}
+
+.animate-draw {
+  animation: draw 2s ease-in-out infinite;
+}
+
+.bg-300% {
+  background-size: 300% 300%;
+}
+
+.bg-pos-0 {
+  background-position: 0% 50%;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #F4D03F, #87CEEB);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #F1C40F, #5DADE2);
+}
+
+/* Enhanced focus styles */
+.focus-visible\:ring-stacksYellow:focus-visible {
+  ring-color: #F4D03F;
+}
+
+.focus-visible\:ring-stacksBlue:focus-visible {
+  ring-color: #87CEEB;
+}
+
+/* Enhanced button hover effects */
+.btn-hover-lift {
+  transform: translateY(0);
+  transition: transform 0.2s ease;
+}
+
+.btn-hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Enhanced card hover effects */
+.card-hover-glow:hover {
+  box-shadow: 0 20px 40px -12px rgba(244, 208, 63, 0.2);
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced text gradients */
+.text-gradient-yellow-blue {
+  background: linear-gradient(135deg, #F4D03F, #87CEEB);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-blue-navy {
+  background: linear-gradient(135deg, #87CEEB, #1B365D);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
