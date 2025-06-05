@@ -1,0 +1,100 @@
+[project]
+name = "stacksbio"
+description = "Decentralized link-in-bio platform on Stacks blockchain"
+authors = ["StacksBio Team"]
+telemetry = false
+cache_dir = "./.clarinet"
+requirements = []
+boot_contracts = []
+
+[contracts.profile]
+path = "contracts/profile.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.links]
+path = "contracts/links.clar"
+clarity_version = 2
+epoch = 2.4
+
+[contracts.analytics]
+path = "contracts/analytics.clar"
+clarity_version = 2
+epoch = 2.4
+
+[repl]
+costs = true
+parser_version = 2
+
+[repl.analysis]
+passes = ["check_checker"]
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
+
+# Development accounts for testing
+[[repl.accounts]]
+name = "deployer"
+address = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM"
+balance = 100000000000000
+mnemonic = "twice kind fence tip hidden tilt action fragile skin nothing glory cousin green tomorrow spring wrist shed math olympic multiply hip blue scout claw"
+
+[[repl.accounts]]
+name = "wallet_1"
+address = "ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5"
+balance = 100000000000000
+mnemonic = "sell invite acquire kitten bamboo drastic jelly vivid peace spawn twice guilt pave pen trash pretty park cube fragile unaware remain midnight betray rebuild"
+
+[[repl.accounts]]
+name = "wallet_2"
+address = "ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG"
+balance = 100000000000000
+mnemonic = "hold excess usual excess ring elephant install account glad dry fragile donkey gaze humble truck breeze nation gasp vacuum limb head keep delay hospital"
+
+[[repl.accounts]]
+name = "wallet_3"
+address = "ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC"
+balance = 100000000000000
+mnemonic = "cycle puppy glare enroll cost improve round trend wrist mushroom prime crater oppose divert carrot jaw era wire debate current moral turn sentence invest"
+
+[[repl.accounts]]
+name = "wallet_4"
+address = "ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND"
+balance = 100000000000000
+mnemonic = "board list obtain sugar hour worth raven scout denial thunder horse logic fury scorpion fold genuine phrase wealth news aim below celery when cabin"
+
+[devnet]
+disable_bitcoin_explorer = false
+# bitcoin_node_p2p_port = 18444
+# bitcoin_node_rpc_port = 18443
+# bitcoin_node_username = "devnet"
+# bitcoin_node_password = "devnet"
+# bitcoin_controller_block_time = 30_000
+# working_dir = "tmp/devnet"
+# use_docker_gateway_routing = false
+
+[devnet.orchestrator]
+port = 20445
+docker_image = "hirosystems/stacks-node:2.4.0.0.1"
+
+[devnet.bitcoin_explorer]
+port = 8001
+
+[devnet.stacks_explorer]
+port = 8000
+
+[devnet.stacks_api]
+port = 3999
+docker_image = "hirosystems/stacks-blockchain-api:7.8.2"
+
+[devnet.postgres]
+port = 5432
+docker_image = "postgres:15-alpine"
+
+[devnet.stacks_node]
+port = 20443
+p2p_port = 20444
+docker_image = "hirosystems/stacks-node:2.4.0.0.1"

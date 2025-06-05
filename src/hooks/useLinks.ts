@@ -1,192 +1,232 @@
 
 /**
- * Links management hook (placeholder for backend integration)
- * Handles CRUD operations for user links
+ * Links management hook with Stacks blockchain integration
+ * Handles CRUD operations for user links via smart contracts
  */
 
-import { useState, useEffect } from 'react';
-import { Link, ApiResponse } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import { Link, ApiResponse, LinkStyle } from '@/types';
+import { useWallet } from './useWallet';
+import {
+  createLink as createLinkContract,
+  updateLink as updateLinkContract,
+  deleteLink as deleteLinkContract,
+  getLink,
+  CreateLinkParams,
+  UpdateLinkParams,
+} from '@/lib/stacks';
 
-export const useLinks = (userId?: string) => {
+export const useLinks = (profileId?: string) => {
   const [links, setLinks] = useState<Link[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { walletState, userSession, network } = useWallet();
+
   /**
-   * Fetch user's links
-   * TODO: Replace with actual API call
+   * Convert smart contract link data to Link interface
    */
-  const fetchLinks = async () => {
-    if (!userId) return;
-    
+  const convertContractLink = useCallback((contractData: any, linkId: string): Link => {
+    return {
+      id: linkId,
+      title: contractData.title,
+      url: contractData.url,
+      description: contractData.description || undefined,
+      icon: contractData.icon || undefined,
+      isActive: contractData['is-active'],
+      clickCount: contractData['click-count'],
+      order: contractData.order,
+      style: {
+        backgroundColor: contractData['style-background'],
+        textColor: contractData['style-text'],
+        borderColor: contractData['style-border'] || undefined,
+        borderWidth: contractData['style-border-width'] || undefined,
+        borderRadius: contractData['style-border-radius'] as 'none' | 'sm' | 'md' | 'lg' | 'full',
+        shadow: contractData['style-shadow'] as 'none' | 'sm' | 'md' | 'lg',
+      },
+      createdAt: new Date(contractData['created-at'] * 1000), // Convert block height to timestamp
+    };
+  }, []);
+
+  /**
+   * Fetch user's links from smart contract
+   * Note: This is a simplified implementation. In production, you'd want to implement
+   * proper pagination and batch fetching for better performance.
+   */
+  const fetchLinks = useCallback(async () => {
+    if (!profileId) return;
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 600));
-      
-      // Mock links data
-      const mockLinks: Link[] = [
-        {
-          id: '1',
-          title: 'My Website',
-          url: 'https://example.com',
-          description: 'Check out my personal website',
-          icon: '🌐',
-          isActive: true,
-          clickCount: 42,
-          order: 1,
-          style: {
-            backgroundColor: '#F4D03F',
-            textColor: '#1B365D',
-            borderRadius: 'lg',
-            shadow: 'md'
-          },
-          createdAt: new Date('2024-01-15')
-        },
-        {
-          id: '2',
-          title: 'Twitter Profile',
-          url: 'https://twitter.com/username',
-          description: 'Follow me on Twitter',
-          icon: '🐦',
-          isActive: true,
-          clickCount: 28,
-          order: 2,
-          style: {
-            backgroundColor: '#87CEEB',
-            textColor: '#1B365D',
-            borderRadius: 'lg',
-            shadow: 'md'
-          },
-          createdAt: new Date('2024-01-16')
-        },
-        {
-          id: '3',
-          title: 'GitHub',
-          url: 'https://github.com/username',
-          description: 'See my code projects',
-          icon: '⚡',
-          isActive: true,
-          clickCount: 15,
-          order: 3,
-          style: {
-            backgroundColor: '#1B365D',
-            textColor: '#FFFFFF',
-            borderRadius: 'lg',
-            shadow: 'md'
-          },
-          createdAt: new Date('2024-01-17')
-        }
-      ];
+      // For now, we'll use a simple approach to fetch links
+      // In production, you'd implement a more efficient batch fetching mechanism
+      const fetchedLinks: Link[] = [];
 
-      setLinks(mockLinks);
+      // Try to fetch links by ID (this is a simplified approach)
+      // In a real implementation, you'd have a better way to get all links for a profile
+      for (let i = 1; i <= 50; i++) { // Max 50 links as per contract
+        try {
+          const result = await getLink(i, network);
+          if (result.success && result.value && result.value['profile-id'] === parseInt(profileId)) {
+            const linkData = convertContractLink(result.value, i.toString());
+            fetchedLinks.push(linkData);
+          }
+        } catch (err) {
+          // Link doesn't exist or error fetching, continue
+          continue;
+        }
+      }
+
+      // Sort by order
+      fetchedLinks.sort((a, b) => a.order - b.order);
+      setLinks(fetchedLinks);
     } catch (err) {
+      console.error('Error fetching links:', err);
       setError('Failed to fetch links');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [profileId, network, convertContractLink]);
 
   /**
    * Add a new link
-   * TODO: Implement actual API call
    */
-  const addLink = async (linkData: Omit<Link, 'id' | 'clickCount' | 'createdAt'>): Promise<ApiResponse<Link>> => {
+  const addLink = useCallback(async (linkData: Omit<Link, 'id' | 'clickCount' | 'createdAt'>): Promise<ApiResponse<Link>> => {
+    if (!walletState.isConnected || !userSession) {
+      return { success: false, error: 'Wallet not connected' };
+    }
+
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newLink: Link = {
-        ...linkData,
-        id: Date.now().toString(),
-        clickCount: 0,
-        createdAt: new Date()
+      const createParams: CreateLinkParams = {
+        title: linkData.title,
+        url: linkData.url,
+        description: linkData.description,
+        icon: linkData.icon,
+        styleBackground: linkData.style.backgroundColor,
+        styleText: linkData.style.textColor,
+        styleBorder: linkData.style.borderColor,
+        styleBorderWidth: linkData.style.borderWidth || 0,
+        styleBorderRadius: linkData.style.borderRadius,
+        styleShadow: linkData.style.shadow,
       };
-      
-      setLinks(prev => [...prev, newLink]);
-      
-      return { success: true, data: newLink, message: 'Link added successfully' };
+
+      const result = await createLinkContract(createParams, userSession, network);
+
+      if (result.success) {
+        // Refresh links
+        await fetchLinks();
+        return { success: true, message: 'Link added successfully' };
+      } else {
+        return { success: false, error: 'Failed to add link' };
+      }
     } catch (err) {
+      console.error('Error adding link:', err);
       return { success: false, error: 'Failed to add link' };
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [walletState, userSession, network, fetchLinks]);
 
   /**
    * Update an existing link
-   * TODO: Implement actual API call
    */
-  const updateLink = async (linkId: string, updates: Partial<Link>): Promise<ApiResponse<Link>> => {
+  const updateLink = useCallback(async (linkId: string, updates: Partial<Link>): Promise<ApiResponse<Link>> => {
+    if (!walletState.isConnected || !userSession) {
+      return { success: false, error: 'Wallet not connected' };
+    }
+
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setLinks(prev => prev.map(link => 
-        link.id === linkId ? { ...link, ...updates } : link
-      ));
-      
-      return { success: true, message: 'Link updated successfully' };
+      const updateParams: UpdateLinkParams = {
+        title: updates.title,
+        url: updates.url,
+        description: updates.description,
+        icon: updates.icon,
+        isActive: updates.isActive,
+      };
+
+      const result = await updateLinkContract(parseInt(linkId), updateParams, userSession, network);
+
+      if (result.success) {
+        // Refresh links
+        await fetchLinks();
+        return { success: true, message: 'Link updated successfully' };
+      } else {
+        return { success: false, error: 'Failed to update link' };
+      }
     } catch (err) {
+      console.error('Error updating link:', err);
       return { success: false, error: 'Failed to update link' };
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [walletState, userSession, network, fetchLinks]);
 
   /**
    * Delete a link
-   * TODO: Implement actual API call
    */
-  const deleteLink = async (linkId: string): Promise<ApiResponse<void>> => {
+  const deleteLink = useCallback(async (linkId: string): Promise<ApiResponse<void>> => {
+    if (!walletState.isConnected || !userSession) {
+      return { success: false, error: 'Wallet not connected' };
+    }
+
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setLinks(prev => prev.filter(link => link.id !== linkId));
-      
-      return { success: true, message: 'Link deleted successfully' };
+      const result = await deleteLinkContract(parseInt(linkId), userSession, network);
+
+      if (result.success) {
+        // Refresh links
+        await fetchLinks();
+        return { success: true, message: 'Link deleted successfully' };
+      } else {
+        return { success: false, error: 'Failed to delete link' };
+      }
     } catch (err) {
+      console.error('Error deleting link:', err);
       return { success: false, error: 'Failed to delete link' };
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [walletState, userSession, network, fetchLinks]);
 
   /**
    * Reorder links
-   * TODO: Implement actual API call
+   * Note: This would require updating the order field for multiple links
+   * For now, we'll implement a simplified version
    */
-  const reorderLinks = async (reorderedLinks: Link[]): Promise<ApiResponse<void>> => {
+  const reorderLinks = useCallback(async (reorderedLinks: Link[]): Promise<ApiResponse<void>> => {
+    if (!walletState.isConnected || !userSession) {
+      return { success: false, error: 'Wallet not connected' };
+    }
+
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
+      // For now, just update the local state
+      // In a full implementation, you'd update the order field in the smart contract
       setLinks(reorderedLinks);
-      
+
       return { success: true, message: 'Links reordered successfully' };
     } catch (err) {
+      console.error('Error reordering links:', err);
       return { success: false, error: 'Failed to reorder links' };
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [walletState, userSession]);
 
+  // Auto-fetch links when profileId changes
   useEffect(() => {
-    if (userId) {
+    if (profileId) {
       fetchLinks();
     }
-  }, [userId]);
+  }, [profileId, fetchLinks]);
 
   return {
     links,
