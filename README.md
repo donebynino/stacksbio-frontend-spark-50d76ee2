@@ -1,7 +1,7 @@
 
-# StacksBio Frontend
+# StacksBio
 
-A decentralized link-in-bio application built on the Stacks blockchain. This repository contains the **frontend-only** implementation.
+A decentralized link-in-bio application built on the Stacks blockchain. This repository contains the complete full-stack implementation with smart contracts, Web3 integration, and modern React frontend.
 
 ## 🚀 Getting Started
 
@@ -9,6 +9,8 @@ A decentralized link-in-bio application built on the Stacks blockchain. This rep
 
 - Node.js 18+ and npm
 - Modern web browser
+- Clarinet (for smart contract development)
+- Stacks wallet (Hiro Wallet, Xverse, etc.)
 
 ### Installation
 
@@ -23,12 +25,38 @@ cd stacksbio-frontend
 npm install
 ```
 
-3. Start the development server:
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+# Edit .env.local with your configuration
+```
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:8080](http://localhost:8080) to view the application.
+5. Open [http://localhost:8080](http://localhost:8080) to view the application.
+
+### Smart Contract Development
+
+1. Install Clarinet:
+```bash
+# macOS
+brew install clarinet
+
+# Other platforms: https://github.com/hirosystems/clarinet
+```
+
+2. Test smart contracts:
+```bash
+clarinet test
+```
+
+3. Deploy to local devnet:
+```bash
+clarinet integrate
+```
 
 ## 🏗️ Project Structure
 
@@ -41,15 +69,26 @@ src/
 │   ├── Features.tsx    # Features showcase
 │   └── ProfilePreview.tsx # Profile preview component
 ├── hooks/              # Custom React hooks
-│   ├── useWallet.ts    # Wallet connection (placeholder)
-│   ├── useProfile.ts   # Profile management (placeholder)
-│   └── useLinks.ts     # Link management (placeholder)
+│   ├── useWallet.ts    # Stacks wallet integration
+│   ├── useProfile.ts   # Profile management with smart contracts
+│   └── useLinks.ts     # Link management with smart contracts
+├── lib/                # Utility libraries
+│   └── stacks.ts       # Smart contract interaction utilities
 ├── pages/              # Route-based page components
 │   ├── Index.tsx       # Landing page
 │   └── NotFound.tsx    # 404 page
 ├── types/              # TypeScript type definitions
 │   └── index.ts        # Core application types
 └── styles/             # Global styles and Tailwind config
+
+contracts/              # Smart contracts (Clarity)
+├── profile.clar        # User profile management
+├── links.clar          # Link storage and management
+└── analytics.clar      # Analytics and tracking
+
+tests/                  # Smart contract tests
+├── profile_test.ts     # Profile contract tests
+└── links_test.ts       # Links contract tests
 ```
 
 ## 🎨 Design System
@@ -65,34 +104,58 @@ src/
 - `Features`: Feature showcase grid
 - `ProfilePreview`: Live preview of user profiles
 
-## 🔌 Integration Points
+## 🔗 Smart Contracts
 
-### Wallet Integration
+### Profile Contract (`contracts/profile.clar`)
+- **Purpose**: User profile management on Stacks blockchain
+- **Features**: Profile creation, updates, theme customization, verification
+- **Functions**: create-profile, update-profile, update-theme, get-profile-by-username
+- **Security**: Ownership verification, username uniqueness, admin controls
+
+### Links Contract (`contracts/links.clar`)
+- **Purpose**: Decentralized link storage and management
+- **Features**: CRUD operations, styling, click tracking, ordering
+- **Functions**: create-link, update-link, delete-link, increment-click-count
+- **Security**: Owner-only modifications, input validation, max limits
+
+### Analytics Contract (`contracts/analytics.clar`)
+- **Purpose**: Track views, clicks, and user engagement
+- **Features**: Profile views, link clicks, visitor tracking, daily analytics
+- **Functions**: record-profile-view, record-link-click, get-profile-totals
+- **Privacy**: Hash-based visitor identification, no personal data storage
+
+## 🔌 Integration Status
+
+### Wallet Integration ✅
 - **File**: `src/hooks/useWallet.ts`
-- **Purpose**: Stacks wallet connection logic
-- **Status**: Placeholder implementation
-- **Next Steps**: Implement actual Stacks wallet connectivity
+- **Status**: Complete Stacks wallet integration
+- **Features**: Hiro Wallet, Xverse support, session persistence, balance tracking
 
-### Backend API
-- **Files**: `src/hooks/useProfile.ts`, `src/hooks/useLinks.ts`
-- **Purpose**: User data and link management
-- **Status**: Mock data and placeholder functions
-- **Next Steps**: Connect to actual backend/smart contracts
+### Smart Contract Integration ✅
+- **Files**: `src/hooks/useProfile.ts`, `src/hooks/useLinks.ts`, `src/lib/stacks.ts`
+- **Status**: Full smart contract integration
+- **Features**: Real-time blockchain operations, type-safe contract calls
 
-### Analytics
-- **Location**: ProfilePreview component link clicks
-- **Purpose**: Track link performance
-- **Status**: Console logging placeholder
-- **Next Steps**: Implement actual analytics tracking
+### Analytics Integration ✅
+- **File**: `contracts/analytics.clar`
+- **Status**: On-chain analytics tracking
+- **Features**: View/click tracking, visitor analytics, performance metrics
 
 ## 🛠️ Development
 
 ### Available Scripts
 
+**Frontend Development**
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+
+**Smart Contract Development**
+- `clarinet test` - Run smart contract tests
+- `clarinet check` - Check contract syntax
+- `clarinet integrate` - Start local devnet
+- `clarinet deploy` - Deploy contracts
 
 ### Adding New Components
 
@@ -108,36 +171,62 @@ src/
 - Implement responsive design (mobile-first)
 - Add smooth transitions for interactive elements
 
-## 📝 Mock Data
+## � Environment Configuration
 
-The application currently uses mock data for demonstration:
+Copy `.env.example` to `.env.local` and configure:
 
-- **User Profile**: Demo user with sample bio and theme
-- **Links**: Sample links with different styles and click counts
-- **Wallet**: Mock wallet connection state
+```bash
+# Network Configuration
+NODE_ENV=development
+NEXT_PUBLIC_NETWORK=mocknet
 
-## 🚧 TODO for Backend Integration
+# Smart Contract Addresses (set after deployment)
+NEXT_PUBLIC_PROFILE_CONTRACT=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.profile
+NEXT_PUBLIC_LINKS_CONTRACT=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.links
+NEXT_PUBLIC_ANALYTICS_CONTRACT=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.analytics
 
-1. **Smart Contract Integration**
-   - Replace mock data in hooks with actual blockchain calls
-   - Implement link storage and retrieval from contracts
-   - Add profile ownership verification
+# API URLs
+NEXT_PUBLIC_STACKS_API_URL=http://localhost:3999
+NEXT_PUBLIC_STACKS_CORE_API_URL=http://localhost:20443
+```
 
-2. **Wallet Connection**
-   - Integrate Stacks wallet (Leather, Xverse)
-   - Handle wallet state persistence
-   - Implement transaction signing
+## 🧪 Testing
 
-3. **API Endpoints**
-   - User profile CRUD operations
-   - Link management endpoints
-   - Analytics data collection
-   - Image upload handling
+### Smart Contract Tests
+```bash
+# Run all contract tests
+clarinet test
 
-4. **Authentication**
-   - Wallet-based authentication
-   - Session management
-   - Protected routes
+# Run specific test file
+clarinet test tests/profile_test.ts
+```
+
+### Frontend Tests
+```bash
+# Run frontend tests (when implemented)
+npm test
+```
+
+## 🚀 Deployment
+
+### Smart Contracts
+1. Deploy to testnet:
+```bash
+clarinet deploy --testnet
+```
+
+2. Deploy to mainnet:
+```bash
+clarinet deploy --mainnet
+```
+
+### Frontend
+1. Build for production:
+```bash
+npm run build
+```
+
+2. Deploy to Vercel/Netlify or your preferred hosting platform
 
 ## 📖 Documentation
 
@@ -158,6 +247,48 @@ The application currently uses mock data for demonstration:
 
 [License information will be added]
 
+## 🔒 Security
+
+### Smart Contract Security
+- Ownership verification for all write operations
+- Input validation and sanitization
+- Access control with proper authorization
+- Nonce-based replay attack prevention
+- Gas optimization to prevent DoS attacks
+
+### Wallet Security
+- Private keys never stored or transmitted
+- Secure session management
+- Signature verification for all transactions
+- Network validation for contract calls
+
+### Frontend Security
+- XSS prevention with proper sanitization
+- CSRF protection with wallet signatures
+- Secure environment variable handling
+- HTTPS enforcement in production
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and test thoroughly
+4. Run tests: `clarinet test` and `npm test`
+5. Commit your changes: `git commit -m 'Add amazing feature'`
+6. Push to the branch: `git push origin feature/amazing-feature`
+7. Open a Pull Request
+
+### Development Guidelines
+- Follow the established code structure
+- Add proper TypeScript types
+- Include component documentation
+- Test responsive design
+- Update tests for new functionality
+- Update this README for significant changes
+
 ---
 
-**Note**: This is a frontend-only implementation. Blockchain logic, smart contracts, and backend functionality will be implemented separately.
+**Status**: Full-stack implementation complete with smart contracts and Web3 integration
+**Network**: Compatible with Stacks mainnet, testnet, and local development
+**Security**: Production-ready with comprehensive security measures
+**Last Updated**: June 4, 2025
