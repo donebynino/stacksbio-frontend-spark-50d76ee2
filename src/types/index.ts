@@ -74,7 +74,7 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Wallet connection status (placeholder for Web3)
+// Wallet connection status for Stacks blockchain
 export interface WalletState {
   isConnected: boolean;
   address?: string;
